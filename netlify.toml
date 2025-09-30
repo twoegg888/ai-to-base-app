@@ -1,12 +1,16 @@
 [build]
+  # 잠금파일 기반 설치로 재현성↑
+  command = "npm ci && npm run build"
   publish = "dist"
-  command = "npm run build"
 
 [build.environment]
-  # Netlify가 존재하지 않는 20.19.5 같은 값으로 가지 않게 LTS 메이저 또는 패치로 고정
   NODE_VERSION = "20.18.0"
+  NODE_ENV = "production"
+  CI = "true"
+  # 빌드가 무거울 경우 메모리 확장 (선택)
+  # NODE_OPTIONS = "--max-old-space-size=4096"
 
-# SPA 라우팅 (Vite/React Router 등)
+# SPA 라우팅 (React Router 등)
 [[redirects]]
   from = "/*"
   to = "/index.html"
@@ -16,11 +20,12 @@
 [build.processing]
   skip_processing = true
 
-# 캐시 정책: HTML은 no-cache, 정적 자산은 장기 캐시
+# ----- Caching / Security Headers -----
+
+# HTML과 라우팅 응답은 캐시 금지(항상 최신)
 [[headers]]
   for = "/*"
   [headers.values]
-    # HTML 문서 재검증 유도
     Cache-Control = "no-cache, no-store, must-revalidate"
     X-Frame-Options = "DENY"
     X-XSS-Protection = "1; mode=block"
@@ -28,8 +33,26 @@
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "geolocation=(), microphone=(), camera=()"
 
+# Vite 빌드 산출물(해시 파일) 장기 캐시
+# 기본적으로 dist/assets/* 로 출력됨
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# (선택) 루트 정적 아이콘/매니페스트 등 캐시
+[[headers]]
+  for = "/favicon.ico"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
+[[headers]]
+  for = "/manifest.webmanifest"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
+# (선택) 과거 static/* 경로 호환
 [[headers]]
   for = "/static/*"
   [headers.values]
-    # 빌드 산출물(해시 파일) 장기 캐시
     Cache-Control = "public, max-age=31536000, immutable"
