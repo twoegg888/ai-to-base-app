@@ -1,0 +1,35 @@
+[build]
+  publish = "dist"
+  command = "npm run build"
+
+[build.environment]
+  # Netlify가 존재하지 않는 20.19.5 같은 값으로 가지 않게 LTS 메이저 또는 패치로 고정
+  NODE_VERSION = "20.18.0"
+
+# SPA 라우팅 (Vite/React Router 등)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Netlify Asset Processing 비활성화 (Vite가 이미 처리함)
+[build.processing]
+  skip_processing = true
+
+# 캐시 정책: HTML은 no-cache, 정적 자산은 장기 캐시
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # HTML 문서 재검증 유도
+    Cache-Control = "no-cache, no-store, must-revalidate"
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
+
+[[headers]]
+  for = "/static/*"
+  [headers.values]
+    # 빌드 산출물(해시 파일) 장기 캐시
+    Cache-Control = "public, max-age=31536000, immutable"
