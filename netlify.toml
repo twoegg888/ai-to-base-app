@@ -1,7 +1,7 @@
 [build]
-  # 잠금파일 기반 설치로 재현성↑
-  command = "npm ci && npm run build"
+  command = "npm ci --include=dev && npm run build"
   publish = "dist"
+
 
 [build.environment]
   NODE_VERSION = "20.18.0"
