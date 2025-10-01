@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { TypewriterText } from './TypewriterText';
 import { SurveyAnswers } from '../data/surveyQuestions';
-import { AIReportResult } from './AIReportResult';
+import { ReportPreview } from './ReportPreview';
 import { waitForAIRecommendation } from '../utils/supabase/survey';
 
 interface SurveyCompleteProps {
@@ -128,18 +128,10 @@ export function SurveyComplete({ userName, answers, onRestart, surveyId }: Surve
       });
     }
   };
-
-  // AI 결과가 있으면 보고서 화면 표시
-  if (aiResult) {
-    return (
-      <AIReportResult 
-        userName={userName}
-        aiResult={aiResult}
-        answers={answers}
-        onRestart={onRestart}
-      />
-    );
-  }
+// AI 결과가 있으면 보고서 화면 표시
+if (aiResult) {
+  return <ReportPreview onBack={onRestart} />;
+}
 
   // 초기 완료 메시지 (토스 스타일)
   if (showInitialMessage) {
